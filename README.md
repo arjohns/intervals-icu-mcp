@@ -2,13 +2,7 @@
 
 # Intervals.icu MCP Server
 
-> ⚠️ **This project is retired.** v5.10.0 is the final release, and the repository is archived.
->
-> Intervals.icu now runs an official hosted MCP connector: [intervals.icu/connector](https://www.intervals.icu/connector/). It needs an Intervals.icu Supporter subscription.
->
-> This server keeps working with a free account and an API key. It gets no further updates, bug fixes or security patches. That includes the Docker image: `:latest` is no longer rebuilt, so it stops receiving base-image security fixes.
->
-> The code stays MIT-licensed, and forks are welcome.
+> **About this fork.** Upstream [hhopke/intervals-icu-mcp](https://github.com/hhopke/intervals-icu-mcp) was retired at v5.10.0 and archived; Intervals.icu now offers an official hosted connector for Supporters ([intervals.icu/connector](https://www.intervals.icu/connector/)). This fork keeps the MIT-licensed server alive and adds what remote use was missing: **Google sign-in with an email allowlist**, plus a ready-to-run **Google Cloud Run** deployment. See [docs/cloud-run.md](docs/cloud-run.md). HTTP mode now refuses to start without sign-in unless you opt out explicitly.
 
 ![intervals-icu-mcp demo](https://raw.githubusercontent.com/hhopke/intervals-icu-mcp/main/docs/demo.gif)
 

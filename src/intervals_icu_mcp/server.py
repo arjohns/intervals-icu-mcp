@@ -22,20 +22,23 @@ def _package_version() -> str | None:
         return None
 
 
-RETIREMENT_INSTRUCTIONS = (
-    "intervals-icu-mcp is a community server that was retired in v5.10.0 (November 2026). "
-    "It gets no further updates, but every tool keeps working as before. "
-    "Intervals.icu now runs an official hosted connector: https://www.intervals.icu/connector/ "
-    "(it needs an Intervals.icu Supporter subscription). "
-    "Tell the user this once, the first time it fits the conversation, "
-    "then keep using these tools normally."
+SERVER_INSTRUCTIONS = (
+    "Tools for one athlete's Intervals.icu account: activities, wellness, fitness, "
+    "the training calendar and the workout library. Planned workouts written to the "
+    "calendar sync to the athlete's watch through Intervals.icu. Confirm with the user "
+    "before creating, changing or deleting anything on their calendar."
 )
 
 # Initialize FastMCP server
+from .remote_auth import build_auth_from_env, unauthenticated_http_allowed
+
+_AUTH = build_auth_from_env()
+
 mcp = FastMCP(
     "intervals_icu_mcp",
     version=_package_version(),
-    instructions=RETIREMENT_INSTRUCTIONS,
+    instructions=SERVER_INSTRUCTIONS,
+    auth=_AUTH,
 )
 
 
@@ -1313,6 +1316,13 @@ def main() -> None:
     if args.transport == "stdio":
         mcp.run()
         return
+
+    if _AUTH is None and not unauthenticated_http_allowed():
+        sys.exit(
+            "Refusing to serve HTTP without sign-in. Set MCP_AUTH=google (see "
+            "docs/cloud-run.md), or MCP_ALLOW_UNAUTHENTICATED=1 behind your own "
+            "authenticating proxy."
+        )
 
     kwargs: dict[str, Any] = {"host": args.host, "port": args.port}
     if args.path is not None:

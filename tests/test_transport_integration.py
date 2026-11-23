@@ -55,7 +55,9 @@ class TestInMemoryTransport:
             tools = {tool.name: tool for tool in await client.list_tools()}
             for name in {"icu_create_sport_settings", "icu_update_sport_settings"}:
                 assert "indoor_ftp" in tools[name].input_schema["properties"]
-            assert "recalc_hr_zones" in tools["icu_update_sport_settings"].input_schema["properties"]
+            assert (
+                "recalc_hr_zones" in tools["icu_update_sport_settings"].input_schema["properties"]
+            )
 
     async def test_tools_use_icu_prefix(self):
         """Every tool follows the naming convention documented in the README."""
@@ -112,9 +114,7 @@ class TestHTTPTransport:
     """
 
     @asynccontextmanager
-    async def _http_client(
-        self, *, mcp_path: str = "/mcp"
-    ) -> AsyncIterator[httpx.AsyncClient]:
+    async def _http_client(self, *, mcp_path: str = "/mcp") -> AsyncIterator[httpx.AsyncClient]:
         """AsyncClient bound to the MCP ASGI app with lifespan managed.
 
         FastMCP's streamable-http transport initializes its session manager in
@@ -215,7 +215,7 @@ class TestHTTPTransport:
                 assert server_info["name"] == "intervals_icu_mcp"
                 assert server_info["version"] == importlib.metadata.version("intervals-icu-mcp")
                 instructions = init_payload["result"]["instructions"]
-                assert "https://www.intervals.icu/connector/" in instructions
+                assert "Intervals.icu account" in instructions
                 session_id = init_resp.headers.get("mcp-session-id")
                 assert session_id, "Server did not issue a session id"
 
