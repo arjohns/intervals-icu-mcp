@@ -25,6 +25,16 @@ SECRET_OAUTH="${SERVICE}-google-oauth-client-secret"
 SECRET_JWT="${SERVICE}-jwt-signing-key"
 
 g() { gcloud --project="$PROJECT" "$@"; }
+# A newly created service account takes up to a minute to become visible to
+# IAM, so policy bindings right after creation can fail with "does not exist".
+retry() {
+  local tries=0
+  until "$@" >/dev/null 2>&1; do
+    tries=$((tries + 1))
+    if [ "$tries" -ge 12 ]; then "$@"; return; fi
+    echo "   waiting for IAM to see the new service account..."; sleep 10
+  done
+}
 say() { printf '\n== %s\n' "$*"; }
 
 say "Enabling the APIs this needs (no-op if already on)"
@@ -68,16 +78,16 @@ say "Service account ${SA}"
 g iam service-accounts describe "$SA" >/dev/null 2>&1 || \
   g iam service-accounts create "$SA_NAME" --display-name="intervals-icu-mcp on Cloud Run" >/dev/null
 for s in "$SECRET_API_KEY" "$SECRET_OAUTH" "$SECRET_JWT"; do
-  g secrets add-iam-policy-binding "$s" --member="serviceAccount:${SA}" \
-    --role=roles/secretmanager.secretAccessor >/dev/null
+  retry g secrets add-iam-policy-binding "$s" --member="serviceAccount:${SA}" \
+    --role=roles/secretmanager.secretAccessor
 done
 
 say "State bucket gs://${BUCKET} (encrypted OAuth sessions survive restarts)"
 gcloud storage buckets describe "gs://${BUCKET}" --project="$PROJECT" >/dev/null 2>&1 || \
   gcloud storage buckets create "gs://${BUCKET}" --project="$PROJECT" --location="$REGION" \
     --uniform-bucket-level-access --public-access-prevention >/dev/null
-gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" \
-  --member="serviceAccount:${SA}" --role=roles/storage.objectUser >/dev/null
+retry gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" --project="$PROJECT" \
+  --member="serviceAccount:${SA}" --role=roles/storage.objectUser
 
 say "Building and deploying (Cloud Build, a few minutes)"
 g run deploy "$SERVICE" \
