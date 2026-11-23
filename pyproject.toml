@@ -1,7 +1,7 @@
 [project]
 name = "intervals-icu-mcp"
 dynamic = ["version"]
-description = "Retired community MCP server for Intervals.icu — see the official connector at https://www.intervals.icu/connector/."
+description = "Intervals.icu MCP server with Google sign-in for remote use (fork of the retired hhopke/intervals-icu-mcp)."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -21,7 +21,7 @@ keywords = [
     "sports-analytics",
 ]
 classifiers = [
-    "Development Status :: 7 - Inactive",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Operating System :: OS Independent",
@@ -47,10 +47,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hhopke/intervals-icu-mcp"
-Repository = "https://github.com/hhopke/intervals-icu-mcp"
+Homepage = "https://github.com/arjohns/intervals-icu-mcp"
+Repository = "https://github.com/arjohns/intervals-icu-mcp"
 Documentation = "https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/tools.md"
-Issues = "https://github.com/hhopke/intervals-icu-mcp/issues"
+Issues = "https://github.com/arjohns/intervals-icu-mcp/issues"
 Changelog = "https://github.com/hhopke/intervals-icu-mcp/releases"
 
 [project.scripts]
