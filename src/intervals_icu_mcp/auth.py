@@ -26,6 +26,11 @@ class ICUConfig(BaseSettings):
     intervals_icu_athlete_id: str = ""
     intervals_icu_delete_mode: DeleteMode = "safe"
 
+    # Optional: a Garmin Connect Personal API key. When set, the server also
+    # registers the read-only garmin_* tools, which call Garmin directly.
+    garmin_personal_api_key: str = ""
+    garmin_personal_api_base_url: str = "https://personal.connectapi.garmin.com"
+
     @field_validator("intervals_icu_delete_mode", mode="before")
     @classmethod
     def _normalize_delete_mode(cls, v: object) -> str:

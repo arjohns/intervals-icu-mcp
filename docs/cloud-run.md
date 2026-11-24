@@ -13,10 +13,11 @@ zero when idle and runs at most one instance.
 | Resource | Purpose |
 |---|---|
 | Cloud Run service `intervals-mcp` | The server, at `https://intervals-mcp-<project-number>.<region>.run.app` |
-| Service account `intervals-mcp-run` | Runs the service; can read only its three secrets and write its state bucket |
+| Service account `intervals-mcp-run` | Runs the service; can read only its own secrets and write its state bucket |
 | Secret `intervals-icu-api-key` | Your Intervals.icu API key |
 | Secret `intervals-mcp-google-oauth-client-secret` | The Google OAuth client secret |
 | Secret `intervals-mcp-jwt-signing-key` | Generated. Signs the server's own tokens and encrypts its stored OAuth state. Keep it stable: rotating it signs every client out |
+| Secret `garmin-personal-api-key` (optional) | A Garmin Connect Personal API key. Not created by the script; if you create it, the script grants access and the `garmin_*` tools turn on. Keys expire after the period you chose (at most a year): add a new secret version and redeploy |
 | Bucket `<project>-intervals-mcp-state` | Encrypted OAuth client registrations and sessions, mounted at `/data`, so a restart doesn't sign you out |
 
 The Cloud Run service is public at the network level (`--allow-unauthenticated`)
@@ -66,3 +67,4 @@ approve on the consent page, pick your Google account, done.
 | `FASTMCP_HOME` | Where OAuth state is kept; `/data/fastmcp` on the mounted bucket |
 | `INTERVALS_ICU_API_KEY` / `INTERVALS_ICU_ATHLETE_ID` | Your Intervals.icu credentials |
 | `INTERVALS_ICU_DELETE_MODE` | `safe` (default), `full` or `none`, as upstream |
+| `GARMIN_PERSONAL_API_KEY` | Optional. From the `garmin-personal-api-key` secret when it exists; turns on the `garmin_*` tools |
