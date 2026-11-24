@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-MCP (Model Context Protocol) server for Intervals.icu — provides up to 73 tools, 4 resources, and 9 prompts for accessing training data, wellness metrics, and performance analysis through Claude and other LLMs. The default `INTERVALS_ICU_DELETE_MODE=safe` registers 70 tools; `full` registers all 73, `none` registers 64.
+MCP (Model Context Protocol) server for Intervals.icu — provides up to 73 tools, 4 resources, and 9 prompts for accessing training data, wellness metrics, and performance analysis through Claude and other LLMs. The default `INTERVALS_ICU_DELETE_MODE=safe` registers 70 tools; `full` registers all 73, `none` registers 64. Setting `GARMIN_PERSONAL_API_KEY` adds 28 read-only `garmin_*` tools (`tools/garmin.py`, client in `garmin_client.py`) on top of any mode.
 
 - **Language**: Python 3.11+
 - **Framework**: FastMCP

@@ -9,6 +9,13 @@
 #
 # Optional: REGION (default us-central1), SERVICE (default intervals-mcp),
 #           ATHLETE_ID (asked for if unset), DELETE_MODE (default safe).
+#
+# Garmin (optional): if a Secret Manager secret named garmin-personal-api-key
+# exists (override the name with SECRET_GARMIN), the service gets it as
+# GARMIN_PERSONAL_API_KEY and registers the read-only garmin_* tools. Create it
+# once with a Garmin Connect Personal API key:
+#   read -rs K && printf '%s' "$K" | gcloud secrets create garmin-personal-api-key \
+#     --project "$PROJECT" --data-file=- && unset K
 set -euo pipefail
 
 : "${PROJECT:?Set PROJECT to your Google Cloud project id}"
@@ -23,6 +30,7 @@ BUCKET="${PROJECT}-${SERVICE}-state"
 SECRET_API_KEY="intervals-icu-api-key"
 SECRET_OAUTH="${SERVICE}-google-oauth-client-secret"
 SECRET_JWT="${SERVICE}-jwt-signing-key"
+SECRET_GARMIN="${SECRET_GARMIN:-garmin-personal-api-key}"
 
 g() { gcloud --project="$PROJECT" "$@"; }
 # A newly created service account takes up to a minute to become visible to
@@ -71,13 +79,23 @@ else
   echo "   $SECRET_JWT: generated"
 fi
 
+GARMIN_SECRETS=""
+if secret_exists "$SECRET_GARMIN"; then
+  echo "   $SECRET_GARMIN: present (garmin_* tools on)"
+  GARMIN_SECRETS=",GARMIN_PERSONAL_API_KEY=${SECRET_GARMIN}:latest"
+else
+  echo "   $SECRET_GARMIN: absent (garmin_* tools off; optional)"
+fi
+
 if [ -z "${ATHLETE_ID:-}" ]; then read -r -p "Intervals.icu athlete id (e.g. i123456): " ATHLETE_ID; fi
 if [ -z "${GOOGLE_OAUTH_CLIENT_ID:-}" ]; then read -r -p "Google OAuth client id: " GOOGLE_OAUTH_CLIENT_ID; fi
 
 say "Service account ${SA}"
 g iam service-accounts describe "$SA" >/dev/null 2>&1 || \
   g iam service-accounts create "$SA_NAME" --display-name="intervals-icu-mcp on Cloud Run" >/dev/null
-for s in "$SECRET_API_KEY" "$SECRET_OAUTH" "$SECRET_JWT"; do
+ACCESS_SECRETS=("$SECRET_API_KEY" "$SECRET_OAUTH" "$SECRET_JWT")
+[ -n "$GARMIN_SECRETS" ] && ACCESS_SECRETS+=("$SECRET_GARMIN")
+for s in "${ACCESS_SECRETS[@]}"; do
   retry g secrets add-iam-policy-binding "$s" --member="serviceAccount:${SA}" \
     --role=roles/secretmanager.secretAccessor
 done
@@ -103,7 +121,7 @@ g run deploy "$SERVICE" \
   --add-volume="name=state,type=cloud-storage,bucket=${BUCKET}" \
   --add-volume-mount="volume=state,mount-path=/data" \
   --set-env-vars="MCP_AUTH=google,MCP_BASE_URL=${BASE_URL},GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID},MCP_ALLOWED_EMAILS=${ALLOWED_EMAILS},INTERVALS_ICU_ATHLETE_ID=${ATHLETE_ID},INTERVALS_ICU_DELETE_MODE=${DELETE_MODE},FASTMCP_HOME=/data/fastmcp" \
-  --set-secrets="INTERVALS_ICU_API_KEY=${SECRET_API_KEY}:latest,GOOGLE_OAUTH_CLIENT_SECRET=${SECRET_OAUTH}:latest,MCP_JWT_SIGNING_KEY=${SECRET_JWT}:latest"
+  --set-secrets="INTERVALS_ICU_API_KEY=${SECRET_API_KEY}:latest,GOOGLE_OAUTH_CLIENT_SECRET=${SECRET_OAUTH}:latest,MCP_JWT_SIGNING_KEY=${SECRET_JWT}:latest${GARMIN_SECRETS}"
 
 say "Checks"
 curl -fsS "${BASE_URL}/health" && echo "   /health ok"

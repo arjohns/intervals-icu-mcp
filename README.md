@@ -230,6 +230,7 @@ For the full catalogue of example prompts by category, see [docs/examples.md](ht
 | [Gear Management](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/tools.md#gear-management-6-tools) | 6 | Track equipment and maintenance reminders |
 | [Sport Settings](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/tools.md#sport-settings-4-tools) | 4 | FTP, FTHR, pace thresholds, and zones |
 | [Custom Items](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/tools.md#custom-items-5-tools) | 5 | User customizations: custom charts, fields, zones, dashboard panels |
+| [Garmin Personal API](docs/tools.md#garmin-personal-api-28-tools-optional) | 28 | Optional, read-only, direct from Garmin: sleep stages, HRV status, Body Battery, stress, SpO2, activities and .FIT files. On only when `GARMIN_PERSONAL_API_KEY` is set |
 
 ## Delete Safety Mode
 

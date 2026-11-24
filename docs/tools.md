@@ -252,6 +252,51 @@ The user's personal additions to their account: custom charts on dashboards, cus
 | `icu_update_custom_item`    | Modify an existing custom addition (rename, reconfigure, change visibility)|
 | `icu_delete_custom_item`    | Permanently remove a custom addition *(only registered when `INTERVALS_ICU_DELETE_MODE=full`; data-bearing field types may cascade)* |
 
+### Garmin Personal API (28 tools, optional)
+
+Registered only when `GARMIN_PERSONAL_API_KEY` is set. Read-only: they call Garmin's
+[Connect Personal API](https://developer.garmin.com/gc-developer-program/personal/personal-api/)
+directly with your own key, so they work without Intervals.icu and return what its
+wellness sync leaves out (sleep stages, Body Battery, stress, respiration, SpO2, Garmin's
+HRV status and baseline). The key is exchanged for a 24-hour bearer token, cached in
+memory and refreshed an hour early. Dense time series are omitted unless
+`include_samples=true`; the response metadata names what was left out. Workouts still
+reach the watch through Intervals.icu, because the Personal API is pull-only.
+
+| Tool | Garmin endpoint | Returns |
+| --- | --- | --- |
+| `garmin_get_sleep` | `/sleep-service/sleep/dailySleep` | One night: stages, score, sleep need, HR, stress, respiration, SpO2 |
+| `garmin_get_sleep_range` | `/sleep-service/sleep/dailySleepSummariesByDate` | Sleep summaries for a range of nights |
+| `garmin_get_hrv` | `/hrv-service/hrv/{date}` | Overnight HRV, 7-day average, baseline range, status |
+| `garmin_get_hrv_range` | `/hrv-service/hrv/daily/{from}/{to}` | Daily HRV summaries |
+| `garmin_get_body_battery` | `/wellness-service/wellness/bodyBattery/reports/daily` | Charged, drained, feedback and activity events |
+| `garmin_get_stress` | `/usersummary-service/stats/stress/daily/{from}/{to}` | Daily average and maximum stress |
+| `garmin_get_daily_summaries` | `/usersummary-service/v2/dailysummaries` | All-day summary: HR, stress bands, Body Battery, respiration, SpO2, steps, calories |
+| `garmin_get_user_summary` | `/usersummary-service/usersummary/daily` | The same day in Garmin Connect's classic format |
+| `garmin_get_heart_rate` | `/wellness-service/wellness/dailyHeartRate` | Resting, min, max, 7-day resting average, alerts |
+| `garmin_get_spo2` | `/wellness-service/wellness/daily/spo2acclimation/{date}` | Pulse ox and acclimation |
+| `garmin_get_steps` | `/usersummary-service/stats/steps/daily/{from}/{to}` | Steps, distance, goal |
+| `garmin_get_hydration` | `/usersummary-service/stats/hydration/daily/{from}/{to}` | Logged intake and goal |
+| `garmin_get_wellness_activities` | `/wellnessactivity-service/activity/summary/range/{from}/{to}` | Wellness activity summaries with time in zones |
+| `garmin_get_vo2max` | `/metrics-service/metrics/maxmet/daily/{from}/{to}` | VO2 max (running, cycling, rowing) |
+| `garmin_get_fitness_age` | `/fitnessage-service/fitnessage/v2/{date}` | Fitness age and its components |
+| `garmin_get_heart_rate_zones` | `/biometric-service/heartRateZones/v2` | Heart rate zones configured on the watch |
+| `garmin_get_weight` | `/weight-service/weight/range/{from}/{to}` | Daily weight and body composition |
+| `garmin_get_weight_entries` | `/weight-service/weight/all/{from}/{to}` | Every weigh-in |
+| `garmin_get_weight_goals` | `/goal-service/goal/user/effective/weightgoal/{from}/{to}` | Weight goals in effect |
+| `garmin_get_food_log` | `/nutrition-service/food/logs/{date}` | Meals, foods, calories, macros, goals |
+| `garmin_search_activities` | `/activitylist-service/activities/search/activities` | Activity search with filters |
+| `garmin_get_activity` | `/activity-service/activity/{id}` | One activity: measurements, splits, device |
+| `garmin_get_activity_workouts` | `/activity-service/activity/{id}/workouts` | Structured workout steps; strength sets |
+| `garmin_get_activity_types` | `/activity-service/activity/activityTypes/simple` | Activity type and subtype keys |
+| `garmin_download_activity_file` | `/download-service/files/activity/{id}` | Original file (ZIP with the .FIT) |
+| `garmin_get_menstrual_cycle_summary` | `/periodichealth-service/menstrualcycle/summary/{date}` | Cycle summary |
+| `garmin_get_menstrual_cycle_day` | `/periodichealth-service/menstrualcycle/dayview/{date}` | Cycle day view |
+| `garmin_get_profile_settings` | `/userprofile-service/userprofile/settings` | Units, time zone, profile details |
+
+To check a key and every endpoint before deploying, run `scripts/garmin_live_check.py`
+(it prints field names, never values).
+
 ## MCP Resources
 
 Resources provide ongoing context to the LLM without requiring explicit tool calls.

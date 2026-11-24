@@ -835,6 +835,23 @@ if _DELETE_MODE == "full":
         },
     )(delete_custom_item)
 
+# Register Garmin Personal API tools (read-only). Like the delete mode, this is
+# decided at startup: without GARMIN_PERSONAL_API_KEY none of them exist, so the
+# default tool list is unchanged for anyone who does not use Garmin directly.
+from .tools.garmin import GARMIN_TOOLS  # noqa: E402
+
+if load_config().garmin_personal_api_key:
+    for _garmin_tool in GARMIN_TOOLS:
+        mcp.tool(
+            name=_garmin_tool.__name__,
+            annotations={
+                "readOnlyHint": True,
+                "destructiveHint": False,
+                "idempotentHint": True,
+                "openWorldHint": True,
+            },
+        )(_garmin_tool)
+
 
 # MCP Resources - Provide ongoing context
 @mcp.resource("intervals-icu://athlete/profile")
