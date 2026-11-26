@@ -34,6 +34,8 @@ schedule (see *Maintenance*); enhancements are picked from this list one at a ti
 
 ## Done
 
+- 2026-11-25 — Garmin watcher: an optional route, `POST /internal/garmin-watch`, called by Cloud Scheduler every 15 minutes. When Garmin has a new activity, it fires a Claude scheduled task through that task's API trigger, so the vault and the morning brief update after a session without being asked. See docs/cloud-run.md.
+
 - 2026-11-24 — Direct Garmin read path: 28 read-only `garmin_*` tools over Garmin's
   Connect Personal API, on when `GARMIN_PERSONAL_API_KEY` is set. Covers every endpoint in
   the Personal API reference, so activities and health data stay readable without

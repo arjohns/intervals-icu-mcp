@@ -68,3 +68,27 @@ approve on the consent page, pick your Google account, done.
 | `INTERVALS_ICU_API_KEY` / `INTERVALS_ICU_ATHLETE_ID` | Your Intervals.icu credentials |
 | `INTERVALS_ICU_DELETE_MODE` | `safe` (default), `full` or `none`, as upstream |
 | `GARMIN_PERSONAL_API_KEY` | Optional. From the `garmin-personal-api-key` secret when it exists; turns on the `garmin_*` tools |
+
+## Optional: start a Claude task when Garmin has a new activity
+
+Garmin's Personal API is pull-only, so the server checks instead of waiting to be told. With the watcher on, a Cloud Scheduler job calls `POST /internal/garmin-watch` every 15 minutes from 6:00 to 22:45 (New York time by default). Each call asks Garmin for activities from the last two days. When one is new, the server fires a Claude scheduled task through its API trigger, passing only the new activity ids, start times, types and names. The task then does the work: ledger, plan check, page and notification. An activity is marked seen only after the fire succeeds, so a failed fire is retried on the next call. The first call only records what already exists, so turning the watcher on never replays old activities. The seen ids live in `/data/garmin-watch/state.json` on the state bucket.
+
+To turn it on:
+
+1. Create the Claude scheduled task, then add an **API** trigger to it at [claude.ai/code/routines](https://claude.ai/code/routines). Copy the **Fire URL**, then click **Generate token** and copy the token, which is shown only once.
+2. Store both values in Secret Manager without pasting them anywhere else:
+
+   ```bash
+   read -rs U && printf '%s' "$U" | gcloud secrets create claude-after-session-fire-url --project "$PROJECT" --data-file=- && unset U
+   read -rs T && printf '%s' "$T" | gcloud secrets create claude-after-session-fire-token --project "$PROJECT" --data-file=- && unset T
+   ```
+
+3. Re-run `deploy.sh`. It finds both secrets, generates the route's own key (`intervals-mcp-garmin-watch-key`), passes everything to the service, and creates or updates the scheduler job `intervals-mcp-garmin-watch`. Set `WATCH_SCHEDULE` and `WATCH_TIME_ZONE` to change when it runs.
+
+The route refuses any call without the right `X-Watch-Key` header. The key is also stored in the scheduler job's settings, where anyone with access to the project can read it. To rotate the Claude token, regenerate it on claude.ai, add it as a new secret version, and redeploy. To turn the watcher off, delete the scheduler job, or delete either Claude secret and redeploy.
+
+| Setting | Meaning |
+|---|---|
+| `GARMIN_WATCH_KEY` | The key the scheduler sends as `X-Watch-Key` |
+| `CLAUDE_FIRE_URL`, `CLAUDE_FIRE_TOKEN` | The Claude scheduled task's API trigger |
+| `GARMIN_WATCH_STATE_FILE` | Where the seen activity ids are kept |

@@ -16,6 +16,14 @@
 # once with a Garmin Connect Personal API key:
 #   read -rs K && printf '%s' "$K" | gcloud secrets create garmin-personal-api-key \
 #     --project "$PROJECT" --data-file=- && unset K
+#
+# Garmin watcher (optional, needs the Garmin secret): when both secrets
+# claude-after-session-fire-url and claude-after-session-fire-token exist (the API
+# trigger of a Claude scheduled task, from claude.ai/code/routines), the service
+# gets a POST /internal/garmin-watch route, and a Cloud Scheduler job named
+# ${SERVICE}-garmin-watch calls it every 15 minutes from 6:00 to 22:45 New York
+# time (override with WATCH_SCHEDULE and WATCH_TIME_ZONE). When Garmin has a new
+# activity, the route fires that task. The route's own key is generated here.
 set -euo pipefail
 
 : "${PROJECT:?Set PROJECT to your Google Cloud project id}"
@@ -31,6 +39,11 @@ SECRET_API_KEY="intervals-icu-api-key"
 SECRET_OAUTH="${SERVICE}-google-oauth-client-secret"
 SECRET_JWT="${SERVICE}-jwt-signing-key"
 SECRET_GARMIN="${SECRET_GARMIN:-garmin-personal-api-key}"
+SECRET_FIRE_URL="claude-after-session-fire-url"
+SECRET_FIRE_TOKEN="claude-after-session-fire-token"
+SECRET_WATCH_KEY="${SERVICE}-garmin-watch-key"
+WATCH_SCHEDULE="${WATCH_SCHEDULE:-*/15 6-22 * * *}"
+WATCH_TIME_ZONE="${WATCH_TIME_ZONE:-America/New_York}"
 
 g() { gcloud --project="$PROJECT" "$@"; }
 # A newly created service account takes up to a minute to become visible to
@@ -47,7 +60,8 @@ say() { printf '\n== %s\n' "$*"; }
 
 say "Enabling the APIs this needs (no-op if already on)"
 g services enable run.googleapis.com cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com secretmanager.googleapis.com >/dev/null
+  artifactregistry.googleapis.com secretmanager.googleapis.com \
+  cloudscheduler.googleapis.com >/dev/null
 
 PROJECT_NUMBER="$(g projects describe "$PROJECT" --format='value(projectNumber)')"
 BASE_URL="https://${SERVICE}-${PROJECT_NUMBER}.${REGION}.run.app"
@@ -87,6 +101,20 @@ else
   echo "   $SECRET_GARMIN: absent (garmin_* tools off; optional)"
 fi
 
+WATCH_SECRETS=""
+WATCH=0
+if [ -n "$GARMIN_SECRETS" ] && secret_exists "$SECRET_FIRE_URL" && secret_exists "$SECRET_FIRE_TOKEN"; then
+  WATCH=1
+  if ! secret_exists "$SECRET_WATCH_KEY"; then
+    python3 -c 'import secrets; print(secrets.token_urlsafe(32), end="")' \
+      | g secrets create "$SECRET_WATCH_KEY" --replication-policy=automatic --data-file=- >/dev/null
+  fi
+  echo "   Garmin watcher: on (${SECRET_FIRE_URL}, ${SECRET_FIRE_TOKEN}, ${SECRET_WATCH_KEY})"
+  WATCH_SECRETS=",GARMIN_WATCH_KEY=${SECRET_WATCH_KEY}:latest,CLAUDE_FIRE_URL=${SECRET_FIRE_URL}:latest,CLAUDE_FIRE_TOKEN=${SECRET_FIRE_TOKEN}:latest"
+else
+  echo "   Garmin watcher: off (optional; needs ${SECRET_FIRE_URL} and ${SECRET_FIRE_TOKEN})"
+fi
+
 if [ -z "${ATHLETE_ID:-}" ]; then read -r -p "Intervals.icu athlete id (e.g. i123456): " ATHLETE_ID; fi
 if [ -z "${GOOGLE_OAUTH_CLIENT_ID:-}" ]; then read -r -p "Google OAuth client id: " GOOGLE_OAUTH_CLIENT_ID; fi
 
@@ -95,6 +123,7 @@ g iam service-accounts describe "$SA" >/dev/null 2>&1 || \
   g iam service-accounts create "$SA_NAME" --display-name="intervals-icu-mcp on Cloud Run" >/dev/null
 ACCESS_SECRETS=("$SECRET_API_KEY" "$SECRET_OAUTH" "$SECRET_JWT")
 [ -n "$GARMIN_SECRETS" ] && ACCESS_SECRETS+=("$SECRET_GARMIN")
+[ "$WATCH" = 1 ] && ACCESS_SECRETS+=("$SECRET_FIRE_URL" "$SECRET_FIRE_TOKEN" "$SECRET_WATCH_KEY")
 for s in "${ACCESS_SECRETS[@]}"; do
   retry g secrets add-iam-policy-binding "$s" --member="serviceAccount:${SA}" \
     --role=roles/secretmanager.secretAccessor
@@ -120,8 +149,23 @@ g run deploy "$SERVICE" \
   --args="--transport,http,--host,0.0.0.0,--port,8080" \
   --add-volume="name=state,type=cloud-storage,bucket=${BUCKET}" \
   --add-volume-mount="volume=state,mount-path=/data" \
-  --set-env-vars="MCP_AUTH=google,MCP_BASE_URL=${BASE_URL},GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID},MCP_ALLOWED_EMAILS=${ALLOWED_EMAILS},INTERVALS_ICU_ATHLETE_ID=${ATHLETE_ID},INTERVALS_ICU_DELETE_MODE=${DELETE_MODE},FASTMCP_HOME=/data/fastmcp" \
-  --set-secrets="INTERVALS_ICU_API_KEY=${SECRET_API_KEY}:latest,GOOGLE_OAUTH_CLIENT_SECRET=${SECRET_OAUTH}:latest,MCP_JWT_SIGNING_KEY=${SECRET_JWT}:latest${GARMIN_SECRETS}"
+  --set-env-vars="MCP_AUTH=google,MCP_BASE_URL=${BASE_URL},GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID},MCP_ALLOWED_EMAILS=${ALLOWED_EMAILS},INTERVALS_ICU_ATHLETE_ID=${ATHLETE_ID},INTERVALS_ICU_DELETE_MODE=${DELETE_MODE},FASTMCP_HOME=/data/fastmcp,GARMIN_WATCH_STATE_FILE=/data/garmin-watch/state.json" \
+  --set-secrets="INTERVALS_ICU_API_KEY=${SECRET_API_KEY}:latest,GOOGLE_OAUTH_CLIENT_SECRET=${SECRET_OAUTH}:latest,MCP_JWT_SIGNING_KEY=${SECRET_JWT}:latest${GARMIN_SECRETS}${WATCH_SECRETS}"
+
+if [ "$WATCH" = 1 ]; then
+  say "Garmin watcher schedule (${WATCH_SCHEDULE}, ${WATCH_TIME_ZONE})"
+  JOB="${SERVICE}-garmin-watch"
+  WATCH_KEY_VALUE="$(g secrets versions access latest --secret="$SECRET_WATCH_KEY")"
+  verb=create
+  g scheduler jobs describe "$JOB" --location="$REGION" >/dev/null 2>&1 && verb=update
+  g scheduler jobs "$verb" http "$JOB" --location="$REGION" \
+    --schedule="$WATCH_SCHEDULE" --time-zone="$WATCH_TIME_ZONE" \
+    --uri="${BASE_URL}/internal/garmin-watch" --http-method=POST \
+    --"$( [ "$verb" = create ] && echo headers || echo update-headers )"="X-Watch-Key=${WATCH_KEY_VALUE}" \
+    --attempt-deadline=120s >/dev/null
+  unset WATCH_KEY_VALUE
+  echo "   ${JOB}: ${verb}d"
+fi
 
 say "Checks"
 curl -fsS "${BASE_URL}/health" && echo "   /health ok"
