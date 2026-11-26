@@ -15,6 +15,7 @@ Then ask me, one question at a time, multiple choice where it fits, only what yo
 5. Injuries or body areas worth asking about after a session.
 6. FTP if I ride; pool units if I swim; where I log strength.
 7. A cadence target and a weight goal, each optional.
+8. Whether the brief's check-in may record my answers in the vault (drinks, illness, injury, mood), and any habit I want to change.
 
 Then install, in this order, telling me one line per step:
 a. Write the three app notes to app/morning-brief/SKILL.md, app/after-session/SKILL.md and app/training-ledger/SKILL.md exactly as in the repository, with only their settings sections filled in from my answers. Leave out anything I said no to.

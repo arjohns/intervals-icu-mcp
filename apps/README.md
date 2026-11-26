@@ -4,7 +4,7 @@ Three apps that sit on top of this server and a Commonplace vault. Each one is a
 
 | App | What it does | What starts it |
 |---|---|---|
-| [Morning brief](morning-brief/SKILL.md) | Each morning: Go, Go easy or Rest from last night's recovery, yesterday's sessions against the plan, today's session, weather, calendars. A phone notification and a page | A daily scheduled task |
+| [Morning brief](morning-brief/SKILL.md) | Each morning: Go, Go easy or Rest from last night's recovery, yesterday's sessions against the plan, today's session, weather, calendars. A phone notification and a page, plus a short check-in when the numbers need context, logged for weekly and monthly reviews | A daily scheduled task |
 | [After-session](after-session/SKILL.md) | Within about 15 minutes of a session: records it, checks it against the plan, then asks one to three questions about how it felt, chosen for that kind of session | The server's Garmin watcher (optional) |
 | [Training ledger](training-ledger/SKILL.md) | The vault's own record of every session, one line each, with totals, so the vault can answer "how many miles this year" without any outside service | After-session, plus a nightly scheduled task |
 

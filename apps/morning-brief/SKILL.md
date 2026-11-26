@@ -10,12 +10,12 @@ description: 'The morning brief: each morning it reads last night''s recovery, y
 
 # morning-brief
 
-**Version:** 1.2.0
+**Version:** 1.3.0
 
 **Shape:** a method plus this vault's settings. Everything above *Settings for this vault* is the method: it names no person and works for any owner. Everything personal (who, where, which page, which calendars, which goals) is in that section and in the owner's own notes.
 
 **Reads:** `profile` for who the owner is; Garmin directly (`garmin_*` tools on the owner's connector); yesterday's, today's and the next two days' planned sessions on the intervals.icu calendar (`icu_get_calendar_events`); yesterday's completed sessions (`icu_get_activities_by_date`); the weather for the location in settings; the calendars in settings for today and the next three days; [[now]] and the season note named in settings for dated items and the current phase of the plan.
-**Writes:** the page named in settings (only its brief.json) and one line in the vault's daily log through the cascade.
+**Writes:** the page named in settings (only its brief.json), one line in the vault's daily log through the cascade, and one check-in line per check-in (see *The check-in*).
 **Never writes to:** the training calendar or activities, Garmin, any calendar or mailbox, or any other vault note. The brief recommends; changing the plan stays a separate step the owner approves.
 
 ## What it is for
@@ -88,6 +88,44 @@ Stats by type, each with the planned figure beside it where there is one:
 
 End with one plain sentence on how it went against the plan (for example "Completed as planned, a little quicker than the easy range"). A missed session is stated without judgment; the brief never scolds.
 
+## The check-in
+
+The brief stays on the day. The check-in is what comes with it: a few questions that give the numbers their context, so the vault learns why, not only what. Context changes the day sometimes, but its bigger value is later: trends, reviews and patterns across months.
+
+Two roles share the brief. The **training coach** reads recovery, sessions and the body; the **assistant** reads calendars, dated items and logistics. The check-in can ask for either.
+
+### When it asks
+
+While building the brief, pick up to three questions, in this order. Ask none on a day where nothing applies.
+
+1. **Safety (coach):** resting heart rate more than 5 above its 7-day average, HRV below the range, an odd breathing rate or blood-oxygen reading, or pain reported in the last two days. Ask: sick, sore or run down?
+2. **A change nothing explains (coach):** a signal moved out of its usual band and the log has no reason for it. Offer the usual causes as choices: a drink, a late meal, caffeine, stress or working late, travel, a broken night, feeling unwell, not sure.
+3. **Yesterday missed or cut short (coach):** ask why, without judgment.
+4. **Today's session at risk (assistant):** meetings, weather or travel squeeze it. Ask when it fits, and offer a time.
+5. **A habit behind a goal in settings (coach):** only when there is a pattern, never one reading: cadence under target two runs in a row, no weigh-in in a week, three short nights, a habit the owner wants less of showing up more often than they intend. One helpful question, never a scold, and never about food.
+
+### How it asks
+
+The brief's message carries the first question. If the owner replies, ask one question at a time, three at most, multiple choice where it fits, and stop once an answer settles it. If there is no reply, nothing more happens and nothing is logged.
+
+### When it changes the day
+
+- Illness, or pain above 3 out of 10: the verdict becomes Rest, the page is updated, and moving sessions is offered for the owner's yes.
+- A one-night cause (a drink, a late meal, a broken night): the verdict stays, and the reply says what tomorrow's numbers should show.
+- Anything else is recorded, not acted on.
+
+### What it records
+
+Only if settings say check-in answers may be logged: one line in today's log per check-in, in the owner's words, tagged with causes from this list: `drink`, `meal`, `caffeine`, `stress`, `travel`, `broken-night`, `illness`, `injury`, `pain`, `mood`, `schedule`, `weather`, `habit`, `other`. Add the numbers the answer explains. Format:
+
+    - HH:MM — check-in [tags]: what the owner said; what it explains; whether the day changed.
+
+The next brief reads the last two days of check-in lines alongside the "how it felt" lines. Reviews read them across weeks (see *Looking back*).
+
+### Looking back
+
+When a weekly or monthly review runs, it counts the check-in tags for the period and sets them beside the trends: sleep, HRV, resting heart rate, sessions done and missed. It says what it sees softly and plainly ("three of the four low-HRV nights this month followed a drink"; "two missed sessions, both on heavy meeting days"), connects it to any goal in settings, and asks at most one question. It never scolds, never moralizes, never comments on food, and treats illness, injury, low mood and anxiety as life, not failure.
+
 ## Settings for this vault
 
 This owner's values. The scheduled task that runs this app carries no personal details; it reads them here. Another owner installing this app replaces this section and nothing above it.
@@ -100,6 +138,8 @@ This owner's values. The scheduled task that runs this app carries no personal d
 - **Time zone:** <IANA time zone>.
 - **Season note:** <[[season note]], or "none">.
 - **Cadence target:** <steps per minute, or "none">.
+- **Check-in answers may be logged:** <yes or no, and any kinds of answer the owner wants kept out of the vault>.
+- **Habits the owner wants to change:** <for example "drink less often", or "none">.
 - **Weight goal:** <where the goal is written, or "none">.
 
 ## Rules owned elsewhere
