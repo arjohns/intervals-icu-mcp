@@ -246,6 +246,7 @@ See [docs/remote-deployment.md](https://github.com/hhopke/intervals-icu-mcp/blob
 
 ## Documentation
 
+- [Training apps for a Commonplace vault](apps/README.md) — a morning brief, an after-session check-in and a training ledger that run on this server, with a setup prompt that installs them
 - [Example prompts](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/examples.md) — full catalogue of natural-language prompts by category
 - [Tool reference](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/tools.md) — complete tool, resource, and prompt inventory
 - [Architecture overview](https://github.com/hhopke/intervals-icu-mcp/blob/main/docs/architecture.md) — how the server, middleware, client, and tools fit together

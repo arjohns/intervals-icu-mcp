@@ -1,0 +1,280 @@
+{
+  "date": "2026-11-26",
+  "weekday": "Thursday",
+  "made": "as sample data; the first scheduled run replaces this file",
+  "place": "Your town",
+  "verdict": {
+    "level": "go",
+    "label": "Go",
+    "reason": "Four of five signals are good and sleep was only a little short, so do the session as planned."
+  },
+  "missing": [],
+  "yesterday": {
+    "date": "2026-11-25",
+    "weekday": "Wednesday",
+    "status": "done",
+    "label": "Done",
+    "planned": "Easy run 4 mi, about 9:30–10:10 per mile",
+    "done": [
+      {
+        "what": "Run, river loop",
+        "stats": [
+          [
+            "Distance",
+            "4.05 mi",
+            "plan 4 mi"
+          ],
+          [
+            "Time",
+            "39:10",
+            ""
+          ],
+          [
+            "Pace",
+            "9:40/mi",
+            "plan 9:30–10:10"
+          ],
+          [
+            "Heart rate",
+            "138 avg",
+            "max 151"
+          ],
+          [
+            "Cadence",
+            "168 spm",
+            "target 170–174"
+          ],
+          [
+            "Effort",
+            "RPE 3",
+            "load 38"
+          ]
+        ],
+        "felt": "Legs fine; a little tight in the left calf at the start, gone by mile 1."
+      }
+    ],
+    "note": "Completed as planned, inside the easy range."
+  },
+  "signals": [
+    {
+      "name": "Sleep score",
+      "value": "82",
+      "unit": "of 100",
+      "note": "Deep sleep good; REM a little short",
+      "status": "good",
+      "min": 40,
+      "max": 100,
+      "x": 82,
+      "zones": [
+        [
+          40,
+          60,
+          "back"
+        ],
+        [
+          60,
+          80,
+          "watch"
+        ],
+        [
+          80,
+          100,
+          "good"
+        ]
+      ]
+    },
+    {
+      "name": "Sleep against need",
+      "value": "7h 05m",
+      "unit": "of 7h 50m",
+      "note": "45 min short of the night's need",
+      "status": "watch",
+      "min": -180,
+      "max": 30,
+      "x": -45,
+      "zones": [
+        [
+          -180,
+          -90,
+          "back"
+        ],
+        [
+          -90,
+          -30,
+          "watch"
+        ],
+        [
+          -30,
+          30,
+          "good"
+        ]
+      ]
+    },
+    {
+      "name": "Overnight HRV",
+      "value": "58",
+      "unit": "ms",
+      "note": "Inside the balanced range of 48–66",
+      "status": "good",
+      "min": 30,
+      "max": 80,
+      "x": 58,
+      "zones": [
+        [
+          30,
+          48,
+          "back"
+        ],
+        [
+          48,
+          66,
+          "good"
+        ],
+        [
+          66,
+          80,
+          "good"
+        ]
+      ]
+    },
+    {
+      "name": "Resting heart rate",
+      "value": "50",
+      "unit": "bpm",
+      "note": "1 below the 7-day average of 51",
+      "status": "good",
+      "min": 42,
+      "max": 62,
+      "x": 50,
+      "zones": [
+        [
+          42,
+          54,
+          "good"
+        ],
+        [
+          54,
+          56,
+          "watch"
+        ],
+        [
+          56,
+          62,
+          "back"
+        ]
+      ]
+    },
+    {
+      "name": "Body Battery peak",
+      "value": "84",
+      "unit": "of 100",
+      "note": "Recharged from 30 overnight",
+      "status": "good",
+      "min": 0,
+      "max": 100,
+      "x": 84,
+      "zones": [
+        [
+          0,
+          50,
+          "back"
+        ],
+        [
+          50,
+          75,
+          "watch"
+        ],
+        [
+          75,
+          100,
+          "good"
+        ]
+      ]
+    }
+  ],
+  "sleep": {
+    "start": "10:40 PM",
+    "end": "6:00 AM",
+    "stages": [
+      [
+        "Deep",
+        80
+      ],
+      [
+        "Light",
+        250
+      ],
+      [
+        "REM",
+        75
+      ],
+      [
+        "Awake",
+        15
+      ]
+    ]
+  },
+  "session": {
+    "planned": "Intervals: 6 × 3 min at threshold, 2 min easy between",
+    "tag": "Week 3, build phase",
+    "recommended": "Do it as planned. Warm up 15 minutes first, and keep the recoveries truly easy."
+  },
+  "weather": [
+    {
+      "day": "Today",
+      "text": "Sunny, light wind",
+      "hi": 52,
+      "lo": 36,
+      "rain": 0
+    },
+    {
+      "day": "Fri",
+      "text": "Cloudy, showers late",
+      "hi": 49,
+      "lo": 40,
+      "rain": 60
+    },
+    {
+      "day": "Sat",
+      "text": "Clearing, cold",
+      "hi": 44,
+      "lo": 30,
+      "rain": 10
+    }
+  ],
+  "today": [
+    {
+      "time": "Day",
+      "what": "3 meetings (2.5 hours), first at 9:00"
+    },
+    {
+      "time": "9:00 AM",
+      "what": "Team stand-up (until 9:30)"
+    },
+    {
+      "time": "1:00 PM",
+      "what": "Project review (until 2:30)"
+    },
+    {
+      "time": "4:00 PM",
+      "what": "One-to-one (until 4:30)"
+    }
+  ],
+  "due": [
+    {
+      "when": "Sat Nov 28",
+      "what": "Example dated item from the vault's now note"
+    }
+  ],
+  "coming": [
+    {
+      "when": "Fri Nov 27",
+      "what": "Rest day"
+    },
+    {
+      "when": "Sat Nov 28",
+      "what": "Long run 8 mi easy"
+    }
+  ],
+  "sources": "Garmin (sleep, HRV, heart rate, Body Battery) · intervals.icu (planned and completed sessions) · your calendars · weather forecast · your vault"
+}

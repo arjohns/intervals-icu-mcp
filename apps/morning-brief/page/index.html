@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Morning Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a coach's one-page morning card, read on a phone in under a minute
+   IDEA a race-day card: the call at the top, the evidence in a few ruled rows
+   PICTURE five readiness rails, each value placed on its own good / watch / back-off bands, plus the night as one stage bar
+   COLOUR white ground, ink, verdict colour leads (teal go, ochre easy, claret rest), night plum for sleep
+   TYPE Libre Franklin 800 + Libre Franklin
+   LAYOUT laptop: verdict left, rails right; phone: verdict, rails, then the day */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#121014);--ink:light-dark(#18161a,#ece8ef);--mute:light-dark(#5d5862,#a9a3ae);--rule:light-dark(#e6e2e9,#2c2830);--panel:light-dark(#f7f5f8,#1b181e);--good:light-dark(#0d7680,#4fb3bb);--watch:light-dark(#b0700f,#e0a24a);--back:light-dark(#990f3d,#e0667f);--night:light-dark(#3b2a5c,#8f78c4);--lead:var(--watch)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Libre Franklin",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(20px,4vw,48px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+.top{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,56px);align-items:start}
+.date{color:var(--mute);font-size:15px;margin:0 0 6px}
+h1{font-weight:800;font-size:clamp(40px,6vw,56px);line-height:1.02;letter-spacing:-.02em;margin:0;color:var(--lead)}
+.reason{font-size:19px;line-height:1.4;margin:12px 0 18px;text-wrap:balance}
+.flag{background:color-mix(in srgb,var(--back) 12%,transparent);border-left:3px solid var(--back);padding:8px 12px;margin:0 0 14px;font-size:15px}
+.sess{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px}
+.sess h2,.day h2{font-size:13px;font-weight:600;color:var(--mute);margin:0 0 4px}
+.sess .p{font-weight:600;font-size:17px;margin:0}
+.sess .t{font-size:14px;color:var(--mute);margin:2px 0 8px}
+.sess .r{margin:0;font-size:16px}
+.yday{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px 16px;margin:0 0 12px}
+.yday .yh{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.yday h2{font-size:13px;font-weight:600;color:var(--mute);margin:0 0 4px}
+.chip{font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.c-done,.c-extra{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.c-partial{background:color-mix(in srgb,var(--watch) 18%,transparent);color:var(--watch)}
+.c-missed{background:color-mix(in srgb,var(--back) 14%,transparent);color:var(--back)}
+.c-rest{background:var(--rule);color:var(--mute)}
+.yday .p{font-weight:600;font-size:17px;margin:2px 0 0}
+.yday .t{font-size:14px;color:var(--mute);margin:2px 0 8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px;margin:8px 0}
+.stats div{border-top:1px solid var(--rule);padding-top:4px}
+.stats dt{font-size:12px;color:var(--mute)}
+.stats dd{margin:0;font-weight:800;font-size:17px;white-space:nowrap}
+.stats dd small{display:block;font-weight:400;font-size:12px;color:var(--mute);white-space:normal}
+.yday .felt,.yday .r{margin:4px 0 0;font-size:15px}
+.rails{display:grid;gap:14px}
+.rail .head{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.rail .n{font-weight:600}
+.rail .v{font-weight:800;font-size:20px;white-space:nowrap}
+.rail .v small{font-weight:400;font-size:14px;color:var(--mute);margin-left:4px}
+.track{position:relative;height:12px;border-radius:6px;overflow:hidden;display:flex;margin:6px 0 4px}
+.track i{display:block;height:100%}
+.z-good{background:color-mix(in srgb,var(--good) 28%,transparent)}
+.z-watch{background:color-mix(in srgb,var(--watch) 28%,transparent)}
+.z-back{background:color-mix(in srgb,var(--back) 26%,transparent)}
+.dot{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--rule)}
+.s-good{background:var(--good)}.s-watch{background:var(--watch)}.s-back{background:var(--back)}
+.rail .note{font-size:14px;color:var(--mute);margin:0}
+.night{margin-top:4px}
+.night .bar{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:6px 0}
+.night .bar span{display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;white-space:nowrap;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mute);margin:0}
+.legend b{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.day{border-top:1px solid var(--rule)}
+.cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,3vw,40px)}
+.wx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.wx>div{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:8px 10px}
+.wx .d{font-weight:600;font-size:14px}.wx .tt{font-size:14px;color:var(--mute)}.wx .t2{font-weight:800;white-space:nowrap}
+.wx .rain{font-size:13px;white-space:nowrap}
+ul.items{list-style:none;padding:0;margin:0}
+ul.items li{padding:7px 0;border-bottom:1px solid var(--rule);display:grid;grid-template-columns:6.5em minmax(0,1fr);gap:10px;font-size:15px}
+ul.items li .w{color:var(--mute);white-space:nowrap}
+.empty{color:var(--mute);font-size:15px;margin:0}
+.foot{color:var(--mute);font-size:13px;padding-top:0}
+@media(max-width:860px){.top{grid-template-columns:minmax(0,1fr)}.cols{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){.wx{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<section class="band"><div class="wrap top">
+  <div>
+    <p class="date" id="date"></p>
+    <h1 id="verdict">Morning brief</h1>
+    <p class="reason" id="reason">Loading this morning's brief…</p>
+    <div id="flags"></div>
+    <div class="yday" id="yday" hidden></div>
+    <div class="sess" id="sess"></div>
+  </div>
+  <div>
+    <div class="rails" id="rails"></div>
+    <div class="night" id="night"></div>
+  </div>
+</div></section>
+<section class="band day"><div class="wrap cols">
+  <div><h2 id="wxh">Weather</h2><div class="wx" id="wx"></div></div>
+  <div><h2>Today and the next three days</h2><ul class="items" id="due"></ul></div>
+  <div><h2>Coming up</h2><ul class="items" id="coming"></ul></div>
+</div></section>
+<section class="band foot"><div class="wrap" id="foot"></div></section>
+</main>
+<script>
+{
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const lead={go:'var(--good)',easy:'var(--watch)',rest:'var(--back)'};
+const render=b=>{
+  document.documentElement.style.setProperty('--lead',lead[b.verdict.level]||'var(--ink)');
+  $('date').textContent=b.weekday+', '+new Date(b.date+'T12:00').toLocaleDateString('en-US',{month:'long',day:'numeric'});
+  $('verdict').textContent=b.verdict.label;
+  $('reason').textContent=b.verdict.reason;
+  $('flags').innerHTML=(b.missing||[]).map(m=>'<p class="flag">'+esc(m)+'</p>').join('');
+  const y=b.yesterday,yd=$('yday');
+  if(y){
+    yd.hidden=false;
+    yd.innerHTML='<div class="yh"><h2>Yesterday, '+esc(y.weekday)+'</h2><span class="chip c-'+esc(y.status)+'">'+esc(y.label)+'</span></div>'
+      +(y.planned?'<p class="t">Planned: '+esc(y.planned)+'</p>':'')
+      +(y.done||[]).map(d=>'<p class="p">'+esc(d.what)+'</p>'
+        +(d.stats&&d.stats.length?'<dl class="stats">'+d.stats.map(x=>'<div><dt>'+esc(x[0])+'</dt><dd>'+esc(x[1])+(x[2]?'<small>'+esc(x[2])+'</small>':'')+'</dd></div>').join('')+'</dl>':'')
+        +(d.felt?'<p class="felt"><b>Felt:</b> '+esc(d.felt)+'</p>':'')).join('')
+      +(y.note?'<p class="r">'+esc(y.note)+'</p>':'');
+  } else yd.hidden=true;
+  const s=b.session;
+  $('sess').innerHTML=s?'<h2>Today’s session</h2><p class="p">'+esc(s.planned)+'</p><p class="t">'+esc(s.tag)+'</p><p class="r">'+esc(s.recommended)+'</p>':'<h2>Today’s session</h2><p class="r">Nothing planned today.</p>';
+  $('rails').innerHTML=b.signals.map(g=>{
+    const span=g.max-g.min,pos=Math.max(0,Math.min(1,(g.x-g.min)/span))*100;
+    const zones=g.zones.map(z=>'<i class="z-'+esc(z[2])+'" style="width:'+((z[1]-z[0])/span*100)+'%"></i>').join('');
+    return '<div class="rail"><div class="head"><span class="n">'+esc(g.name)+'</span><span class="v">'+esc(g.value)+'<small>'+esc(g.unit)+'</small></span></div><div class="track" role="img" aria-label="'+esc(g.name+': '+g.status)+'">'+zones+'<span class="dot s-'+esc(g.status)+'" style="left:'+pos+'%"></span></div><p class="note">'+esc(g.note)+'</p></div>';
+  }).join('');
+  const sl=b.sleep;
+  if(sl){
+    const tot=sl.stages.reduce((a,x)=>a+x[1],0),col={Deep:'var(--night)',Light:'color-mix(in srgb,var(--night) 55%,#9aa)',REM:'color-mix(in srgb,var(--night) 35%,#d7a)',Awake:'var(--watch)'};
+    const hm=m=>Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';
+    $('night').innerHTML='<div class="head" style="display:flex;justify-content:space-between;gap:12px;margin-top:6px"><span style="font-weight:600">Last night</span><span style="color:var(--mute);font-size:14px;white-space:nowrap">'+esc(sl.start)+' to '+esc(sl.end)+'</span></div><div class="bar">'+sl.stages.map(x=>'<span style="width:'+(x[1]/tot*100)+'%;background:'+col[x[0]]+'">'+(x[1]/tot>.12?esc(x[0]):'')+'</span>').join('')+'</div><p class="legend">'+sl.stages.map(x=>'<span><b style="background:'+col[x[0]]+'"></b>'+esc(x[0])+' '+hm(x[1])+'</span>').join('')+'</p>';
+  }
+  $('wxh').textContent=b.place?'Weather, '+b.place:'Weather';
+  $('wx').innerHTML=b.weather.map(w=>'<div><div class="d">'+esc(w.day)+'</div><div class="t2">'+esc(w.lo)+'–'+esc(w.hi)+'°F</div><div class="tt">'+esc(w.text)+'</div><div class="rain">'+esc(w.rain)+'% rain</div></div>').join('');
+  const list=(id,a,empty)=>{$(id).innerHTML=a&&a.length?a.map(i=>'<li><span class="w">'+esc(i.when)+'</span><span>'+esc(i.what)+'</span></li>').join(''):'<li><span class="empty">'+esc(empty)+'</span></li>'};
+  const today=(b.today||[]).map(e=>({when:e.time||'Today',what:e.what}));
+  list('due',today.concat(b.due||[]),'Nothing on the calendar.');
+  list('coming',b.coming,'No sessions planned in the next two days.');
+  $('foot').textContent='Made '+b.made+'. Sources: '+b.sources+'.';
+};
+fetch('brief.json',{cache:'no-store'}).then(r=>r.json()).then(render).catch(()=>{$('reason').textContent='This morning’s brief could not be loaded.'});
+}
+</script>
+</body>
+</html>
