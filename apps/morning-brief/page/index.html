@@ -137,7 +137,7 @@ const render=b=>{
     $('night').innerHTML='<div class="head" style="display:flex;justify-content:space-between;gap:12px;margin-top:6px"><span style="font-weight:600">Last night</span><span style="color:var(--mute);font-size:14px;white-space:nowrap">'+esc(sl.start)+' to '+esc(sl.end)+'</span></div><div class="bar">'+sl.stages.map(x=>'<span style="width:'+(x[1]/tot*100)+'%;background:'+col[x[0]]+'">'+(x[1]/tot>.12?esc(x[0]):'')+'</span>').join('')+'</div><p class="legend">'+sl.stages.map(x=>'<span><b style="background:'+col[x[0]]+'"></b>'+esc(x[0])+' '+hm(x[1])+'</span>').join('')+'</p>';
   }
   $('wxh').textContent=b.place?'Weather, '+b.place:'Weather';
-  $('wx').innerHTML=b.weather.map(w=>'<div><div class="d">'+esc(w.day)+'</div><div class="t2">'+esc(w.lo)+'–'+esc(w.hi)+'°F</div><div class="tt">'+esc(w.text)+'</div><div class="rain">'+esc(w.rain)+'% rain</div></div>').join('');
+  $('wx').innerHTML=b.weather.map(w=>'<div><div class="d">'+esc(w.day)+'</div><div class="t2">'+esc(w.lo)+'–'+esc(w.hi)+'°F</div><div class="tt">'+esc(w.text)+'</div><div class="rain">'+(w.rain==null?'rain chance not given':esc(w.rain)+'% rain')+'</div></div>').join('');
   const list=(id,a,empty)=>{$(id).innerHTML=a&&a.length?a.map(i=>'<li><span class="w">'+esc(i.when)+'</span><span>'+esc(i.what)+'</span></li>').join(''):'<li><span class="empty">'+esc(empty)+'</span></li>'};
   const today=(b.today||[]).map(e=>({when:e.time||'Today',what:e.what}));
   list('due',today.concat(b.due||[]),'Nothing on the calendar.');

@@ -48,6 +48,10 @@ Read these from Garmin for today's date (Garmin files a night under the date it 
 
 Never work around a gap silently. If last night's sleep or HRV is missing, say so in the first line ("Garmin hasn't sent last night's sleep yet") and give the verdict from what is there, marked as partial. If Garmin cannot be reached at all, fall back to the sleep and HRV fields in intervals.icu (`icu_get_wellness_for_date`) and say which source was used.
 
+**What goes in "missing":** only a gap that changes what the owner should do or how far to trust the verdict (no sleep data, no HRV, a calendar that couldn't be read). Where a number came from (a nearby city's forecast, the intervals.icu fallback) goes in the sources line at the foot of the page, not in "missing".
+
+**Weather:** use a forecast for the settings location, searching with its ZIP code, and prefer one that gives rain chances by day. A forecast for the nearest city is fine when there is none for the town; name it in the sources line. If a day's rain chance isn't given, set `rain` to null (the page shows "rain chance not given"), never 0.
+
 **Owners without Garmin tools** (the connector has no `garmin_*` tools, for example because they use another watch): read sleep, HRV and resting heart rate from intervals.icu wellness every day, and judge with the four signals there are. Body Battery is Garmin's, so leave that rail out rather than flag it as missing.
 
 **Notes that may not exist:** if the vault has no [[now]] note, or settings name no season note, leave out what they would have supplied (dated items, plan phase, last race) without comment. Only a source that should have answered and didn't is a gap worth reporting.
@@ -133,7 +137,7 @@ This owner's values. The scheduled task that runs this app carries no personal d
 - **Owner:** see `profile`.
 - **When:** daily at <time> <IANA time zone>, with a phone notification (the scheduled task "Morning brief").
 - **Page:** the Claude artifact "Morning Brief", slug `<artifact slug>` (<artifact link>). Its index.html renders `brief.json`; only brief.json changes.
-- **Weather location:** <town, region> (latitude <lat>, longitude <lon>). The page's weather heading shows it as "<short name>" (the `place` field in brief.json).
+- **Weather location:** <town, region, ZIP code> (latitude <lat>, longitude <lon>). <The search to use, and the nearest city's forecast as the fallback.> The page's weather heading shows it as "<short name>" (the `place` field in brief.json).
 - **Calendars:** <which calendars, and through which connector>. <Whether work meeting titles may be written into the brief and the vault.>
 - **Time zone:** <IANA time zone>.
 - **Season note:** <[[season note]], or "none">.
