@@ -852,6 +852,24 @@ if load_config().garmin_personal_api_key:
             },
         )(_garmin_tool)
 
+# Garmin watcher (optional): a scheduler calls this route every few minutes; when
+# Garmin has a new activity it starts a Claude scheduled task. The route exists
+# only when the Garmin key and every watcher setting are configured.
+from .garmin_watch import WatchSettings, check_once, key_matches  # noqa: E402
+
+_WATCH = WatchSettings.from_env() if load_config().garmin_personal_api_key else None
+
+if _WATCH is not None:
+    _watch_settings = _WATCH
+
+    @mcp.custom_route("/internal/garmin-watch", methods=["POST"], include_in_schema=False)
+    async def garmin_watch(request: Request) -> JSONResponse:
+        """Check Garmin for new activities and start the Claude task for them."""
+        if not key_matches(request.headers.get("x-watch-key"), _watch_settings.watch_key):
+            return JSONResponse({"status": "forbidden"}, status_code=403)
+        status, report = await check_once(load_config(), _watch_settings)
+        return JSONResponse(report, status_code=status)
+
 
 # MCP Resources - Provide ongoing context
 @mcp.resource("intervals-icu://athlete/profile")
